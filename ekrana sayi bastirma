@@ -1,0 +1,13 @@
+#include <stdio.h>
+
+int main()
+{
+  int x;
+
+printf("bir sayi giriniz:"); scanf("%d", &x);
+
+printf("girdiğiniz sayi:%d", x);
+
+return 0;
+
+}
