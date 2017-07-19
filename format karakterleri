@@ -1,0 +1,14 @@
+#include <stdio.h>
+
+int main()
+{
+	long int lo = 23457;
+	unsigned long int unlo = -65242;
+
+	printf("unlo = %ld\n", lo);   /* onluk sistemde yazar */
+	printf("unlo = %lu\n", unlo); /* onluk sistemde yazar */
+	printf("unlo = %lo\n", unlo); /* sekizlik sistemde yazar */
+	printf("unlo = %lX\n", unlo); /* onaltılık sistemde yazar */
+
+	return 0;
+}
