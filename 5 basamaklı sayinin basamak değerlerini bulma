@@ -1,0 +1,32 @@
+#include <stdio.h>
+
+int main()
+{
+	
+	
+	int x;
+	
+	
+	git:
+		
+	printf("5 basamakli bir sayi giriniz :    ");
+	 
+	scanf("%d",&x);
+	if (x>=100000 || x<=9999)
+	{
+		printf("eksik yada fazla rakam girdiniz\n");
+		
+		goto git;
+	}
+	printf("birler basamagi = %d\n", x%10);
+	printf("onlar basamagi = %d\n", x % 100 / 10);
+	printf("yuzler basamagi = %d\n", x % 1000 / 100); /*12345*/
+	printf("binler basamagi = %d\n", x % 10000 / 1000);
+	printf("onbinler basamagi = %d\n", x /10000);
+	
+	
+	return 0;
+	
+	
+	
+}
