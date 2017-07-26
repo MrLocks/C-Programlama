@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-int g; // global g değişkenini tanımlıyoruz
+int g; // global g deÄŸiÅŸkenini tanÄ±mlÄ±yoruz
 
 
 void func()
@@ -15,7 +15,7 @@ int main()
 	
 	printf("g = %d\n", g);  // ekrana g = 20 yazacak 
 	
-	func(); // yukardaki func işlevini (fonksiyonunu) çağırıyoruz ve g'ye 10 atıyor
+	func(); // yukardaki func iÅŸlevini (fonksiyonunu) Ã§aÄŸÄ±rÄ±yoruz ve g'ye 10 atÄ±yor
 	
 	printf("g = %d", g); // ekrana g = 10 yazar
 	
