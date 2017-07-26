@@ -3,7 +3,7 @@
 int main()
 {
 	
-	// derleyici ilk once dar bilinirlik alanına bakar ve x in karşılığını arar
+	// derleyici ilk once dar bilinirlik alanÄ±na bakar ve x in karÅŸÄ±lÄ±ÄŸÄ±nÄ± arar
 	int x = 100;
 	
 	printf("x = %d\n",x);
