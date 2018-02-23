@@ -1,0 +1,605 @@
+#logfile
+
+//---------------------------[  gel babana evlat ]--------------------------
+
+DEFINE($flight_modes, "AZGARD_SCREAM")  //uçucagı yer: "PET", "RADIATION", "RANDOM" "AZGARD_SCREAM"
+
+DEFINE($use_camouflage, 1)  // kamufle CL04K CPU XL(50): 1 - da, 0 - net
+
+DEFINE($use_collecting, 0) 
+
+DEFINE($use_pet, 0) 
+
+DEFINE($dogma, 100) // doğma süresi 
+DEFINE($olums, 0)
+
+//---------------------------------[ doğma   ]---------------------------------
+
+DEFINE($deaths, 60) // ölüm sayısı
+
+DEFINE($respawn, 3) // diriliş yeri: 1 - istasyon, 2 - port, 3 - yerinde
+
+DEFINE($wait_after_repair, 1) // gemi tamirinden sonra bekleme süresi
+
+//---------------------------------[ ssss ]---------------------------------
+
+DEFINE($slowpoke, 0) // yavaş bilgisayar
+
+//------------------------------------------------------------------------------
+
+DEFINE($use_auto_loot, 1)
+
+
+
+
+
+
+//------------------------------------------------------------------------------
+
+WHILE($search_minimap = 0)
+   GETSCREEN
+   COLORMODE(8)
+   IF_PICTURE_IN (0,0, $_xmax,$_ymax, "pictures/windows/minimap/minimap.bmp", -1, 100)
+      $minimap_not_found = 0
+      $search_minimap = 1
+      $check_minimap = 0
+      $_xmini_map = $_return1
+      $_ymini_map = $_return2
+   ELSE
+      WAITMS(50)
+      GETSCREEN
+      COLORMODE(8)
+      IF_PICTURE_IN (0,0, $_xmax,$_ymax, "pictures/windows/minimap/open_minimap.bmp", -1, 100)
+         LCLICK($_return1+5 + RND(-6,6), $_return2+5 + RND(-6,6))
+         WAITMS(50)
+         MOVE(0,0)
+         WAIT(3)
+      ELSE
+         WAITMS(50)
+         IF($check_ship = 1)
+            $check_repair = 1
+            $check_connect = 1
+            $search_minimap = 1
+         END_IF
+      END_IF
+   END_IF
+   WAITMS(50)
+END_CYC
+
+WHILE($check_minimap = 0)
+   GETSCREEN($_xmini_map-18,$_ymini_map-8, $_xmini_map+34,$_ymini_map+14)
+   COLORMODE(8,$_xmini_map-18,$_ymini_map-8, $_xmini_map+34,$_ymini_map+14)
+   IF_PICTURE_IN ($_xmini_map-15,$_ymini_map-5, $_xmini_map+30,$_ymini_map+10, "pictures/windows/minimap/minimap.bmp", -1, 100)
+      $check_minimap = 1
+      $_xmap = $_return1
+      $_ymap = $_return2
+      $fix = 1
+   ELSE
+      IF($fix = 1)
+         $fix = 0
+         LCLICK($_xmini_map-140,$_ymini_map+30)
+         WAIT(2)
+      ELSE
+         $check_ship = 1
+         $check_minimap = 1
+         $search_minimap = 0
+         $minimap_not_found = 1
+      END_IF
+   END_IF
+   WAITMS(50)
+END_CYC
+
+IF($check_repair = 1)
+   $check_repair = 0
+   $search_minimap = 0
+   GETSCREEN
+   COLORMODE(7)
+   IF_PICTURE_IN (0,0, $_xmax,$_ymax, "pictures/repair/death.bmp", -1, 99)
+      LOGWRITE ("ölüm")
+      
+      $olums = $olums + 1
+      print("ÖLÜM SAYISI " $olums)
+      
+      define($repair, -1)
+      INC($repair,1)
+      IF($repair = $deaths)
+         LOGWRITE ("ölüm 2")
+         WAIT(1)
+         HALT
+      END_IF
+      WAIT($dogma)
+      SWITCH($respawn)
+      CASE(1)
+         LCLICK($_return1-390 + RND(-20,20), $_return2+195 + RND(-20,20))
+         WAITMS(750)
+         LCLICK($_return1-235 + RND(-80,80) , $_return2+410 + RND(-8,8))
+      CASE(2)
+         LCLICK($_return1-235 + RND(-20,20), $_return2+195 + RND(-20,20))
+         WAITMS(750)
+         LCLICK($_return1-235 + RND(-80,80) , $_return2+410 + RND(-8,8))
+      CASE(3)
+         LCLICK($_return1-85 + RND(-20,20), $_return2+195 + RND(-20,20))
+         WAITMS(750)
+         LCLICK($_return1-235 + RND(-80,80) , $_return2+410 + RND(-8,8))
+      END_SWITCH
+      WAIT($wait_after_repair)
+      IF($wait_after_repair > 300)
+         $check_connect = 1
+      ELSE
+         $check_connect = 0
+      END_IF
+      $time_pet = $_time_t + 30
+   ELSE
+      WAITMS(50)
+   END_IF
+END_IF
+
+IF($check_connect = 1)
+   $check_connect = 0
+   $search_minimap = 0
+   GETSCREEN
+   COLORMODE(7)
+   IF_PICTURE_IN (0,0, $_xmax,$_ymax, "pictures/repair/reconnect.bmp", -1, 99)
+      WAIT(120)
+      LCLICK($_return1+48 + RND(-35,35), $_return2+174+ RND(-3,3))
+      WAIT(10)
+   ELSE
+      WAITMS(50)
+   END_IF
+END_IF
+
+IF($use_camouflage = 1)&($minimap_not_found!1))
+   $use_camouflage = 0
+   GETSCREEN
+   COLORMODE(6)
+   IF_PICTURE_IN (0,0, $_xmax,$_ymax, "pictures/extras/cl04k_cpu_xl.bmp", -1, 99)
+      $check_camouflage = 1
+      $cpux = $_return1
+      $cpuy = $_return2
+   ELSE
+      PRINT("kamüfle aldı")
+   END_IF
+   WAITMS(50)
+END_IF
+
+IF($check_camouflage = 1)&($minimap_not_found!1))
+   IF($time_camouflage < $_time_t)
+      GETSCREEN($cpux-10,$cpuy-20,$cpux+30,$cpuy-12)
+      COLORMODE(6,$cpux-10,$cpuy-20,$cpux+30,$cpuy-12)
+      IF_PICTURE_IN($cpux-10,$cpuy-20,$cpux+30,$cpuy-12, "pictures/extras/check_cl04k_cpu_xl.bmp", -1, 99)
+         WAITMS(5)
+      ELSE
+         LCLICK($cpux+8 + RND(-10,10),$cpuy+2 + RND(-10,10))
+         PRINT("KAMU")
+      END_IF
+      IF($use_collecting = 1)
+         $time_camouflage = $_time_t + 15
+      ELSE
+         $time_camouflage = $_time_t + 5
+      END_IF
+   END_IF
+   WAITMS(50)
+END_IF
+IF(($use_auto_loot = 1)&($minimap_not_found!1)&($PROTECTION!1))
+   IF($time_auto_loot < $_time_t)
+      
+      IF($kill_npc = 1)
+         SETTHREAD(CHECK_SHIELD, 2)
+      END_IF
+      
+      $open_pet = 0
+      $time_check_pet = $_time_t + 3
+      WHILE($time_check_pet > $_time_t)
+         GETSCREEN
+         COLORMODE(8)
+         IF_PICTURE_IN (0,0, $_xmax,$_ymax, "pictures/windows/pet/autoloot/pet1.bmp", -1, 99)
+            $time_check_pet = 0
+            $check_pet = 0
+            $_xpet = $_return1
+            $_ypet = $_return2
+            WAITMS(250)
+         ELSE
+            IF($open_pet = 0)
+               $open_pet  = 1
+               IF_PICTURE_IN (0,0, $_xmax,$_ymax, "pictures/windows/pet/autoloot/open_pet.bmp", -1, 99)
+                  $time_check_pet = $_time_t + 5
+                  LCLICK($_return1+5 + RND(-6,6), $_return2+5 + RND(-6,6))
+                  WAITMS(550)
+               ELSE
+                  $check_pet = 1
+               END_IF
+            END_IF
+         ELSE
+            $check_pet = 1
+         END_IF
+         WAITMS(50)
+      END_CYC
+      
+      $exit_pet = 0
+      WHILE($check_pet = 0)
+         define($pet,3)
+         INC($pet,1)
+         $time_check_pet = $_time_t + 3
+         WHILE($time_check_pet > $_time_t)
+            GETSCREEN
+            COLORMODE(8,$_xpet-32,$_ypet-8,$_xpet+270,$_ypet+250)
+            $name_pet = STRCONCAT("pictures/windows/pet/autoloot/","pet", $pet, ".bmp")
+            IF_PICTURE_IN($_xpet-32,$_ypet-8,$_xpet+270,$_ypet+250, $name_pet, - 1, 99)
+               WAITMS(50)
+               $time_check_pet = 0
+               $search_pet = 1
+            ELSE
+               $search_pet = 0
+               IF($pet = 2)
+                  LCLICK(INT($_xmax/2),INT($_ymax/2))
+                  WAITMS(150)
+                  KEYPRESS(#R)
+                  WAITMS(50)
+               END_IF
+               IF($pet_not_found = 1)
+                  $pet_not_found = 0
+                  $time_check_pet = 0
+               END_IF
+               //print("P.E.T. - ", $pet, " Íå íàéäåíî.")
+               WAITMS(50)
+            END_IF
+         END_CYC
+         SWITCH($pet)
+         CASE(1)
+            IF($search_pet = 1)
+               LCLICK($_return1-5 + RND(-15,15), $_return2+110 + RND(-10,10))
+               WAITMS(RND(150,300))
+               LCLICK($_return1-5 + RND(-15,15), $_return2+50 + RND(-10,10))
+               WAITMS(150)
+               KEYPRESS(#R)
+               WAITMS(50)
+               $pet = 1
+            ELSE
+               $pet = 0
+               $exit_pet = $exit_pet + 1
+            END_IF
+         CASE(2)
+            IF($search_pet = 1)
+               LCLICK($_return1+65 + RND(-25,25), $_return2+4 + RND(-4,4))
+               WAITMS(50)
+               $pet = 2
+            ELSE
+               $exit_pet = $exit_pet + 1
+               $pet = 0
+            END_IF
+         CASE(3)
+            IF($search_pet = 1)
+               LCLICK($_return1+50 + RND(-20,20), $_return2+6 + RND(-4,4))
+               WAITMS(50)
+               $pet = 3
+            ELSE
+               $exit_pet = $exit_pet + 1
+               $pet = 0
+            END_IF
+         CASE(4)
+            IF($search_pet = 1)
+               $check_pet = 1
+               LCLICK($_return1-110 + RND(-4,4), $_return2-95 + RND(-4,4))
+               WAITMS(50)
+               $pet_not_found = 1
+               $pet = 3
+            ELSE
+               $exit_pet = $exit_pet + 1
+               $pet = 0
+            END_IF
+         END_SWITCH
+         IF($exit_pet = 3)
+            $check_pet = 1
+         END_IF
+      END_CYC
+      IF($kill_npc = 1)
+         SETTHREAD(CHECK_SHIELD, 1)
+      END_IF
+      $time_auto_loot = $_time_t + 90
+   END_IF
+END_IF
+IF(($use_pet = 1)&($minimap_not_found!1))
+   IF($time_pet < $_time_t)
+      
+      $open_pet = 0
+      $time_check_pet = $_time_t + 5
+      WHILE($time_check_pet > $_time_t)
+         GETSCREEN
+         COLORMODE(8)
+         IF_PICTURE_IN (0,0, $_xmax,$_ymax, "pictures/windows/pet/pet1.bmp", -1, 99)
+            $time_check_pet = 0
+            $check_pet = 0
+            $_xpet = $_return1
+            $_ypet = $_return2
+            WAITMS(250)
+         ELSE
+            IF($open_pet = 0)
+               $open_pet  = 1
+               IF_PICTURE_IN (0,0, $_xmax,$_ymax, "pictures/windows/pet/open_pet.bmp", -1, 99)
+                  $time_check_pet = $_time_t + 5
+                  LCLICK($_return1+5 + RND(-6,6), $_return2+5 + RND(-6,6))
+                  WAITMS(550)
+               ELSE
+                  $check_pet = 1
+               END_IF
+            END_IF
+         ELSE
+            $check_pet = 1
+         END_IF
+         WAITMS(50)
+      END_CYC
+      
+      $exit_pet = 0
+      WHILE($check_pet = 0)
+         define($pet,3)
+         INC($pet,1)
+         IF($slowpoke = 1)
+            $time_check_pet = $_time_t + 5
+         ELSE
+            $time_check_pet = $_time_t + 3
+         END_IF
+         WHILE($time_check_pet > $_time_t)
+            GETSCREEN
+            COLORMODE(8,$_xpet-35,$_ypet-10,$_xpet+280,$_ypet+250)
+            $name_pet = STRCONCAT("pictures/windows/pet/","pet", $pet, ".bmp")
+            IF_PICTURE_IN($_xpet-35,$_ypet-10,$_xpet+280,$_ypet+250, $name_pet, - 1, 99)
+               WAITMS(50)
+               $time_check_pet = 0
+               $search_pet = 1
+            ELSE
+               $search_pet = 0
+               IF($pet = 2)
+                  LCLICK(INT($_xmax/2),INT($_ymax/2))
+                  WAITMS(150)
+                  KEYPRESS(#R)
+                  WAITMS(50)
+               END_IF
+               IF($pet_not_found = 1)
+                  $pet_not_found = 0
+                  $time_check_pet = 0
+               END_IF
+               WAITMS(50)
+            END_IF
+         END_CYC
+         SWITCH($pet)
+         CASE(1)
+            IF($search_pet = 1)
+               LCLICK($_return1-5 + RND(-15,15), $_return2+110 + RND(-10,10))
+               WAITMS(RND(150,300))
+               LCLICK($_return1-5 + RND(-15,15), $_return2+50 + RND(-10,10))
+               WAITMS(150)
+               KEYPRESS(#R)
+               WAITMS(50)
+               $pet = 1
+            ELSE
+               $pet = 0
+               $exit_pet = $exit_pet + 1
+            END_IF
+         CASE(2)
+            IF($search_pet = 1)
+               LCLICK($_return1+65 + RND(-25,25), $_return2+4 + RND(-4,4))
+               WAITMS(50)
+               $pet = 2
+            ELSE
+               $exit_pet = $exit_pet + 1
+               $pet = 0
+            END_IF
+         CASE(3)
+            IF($search_pet = 1)
+               LCLICK($_return1+50 + RND(-20,20), $_return2+6 + RND(-4,4))
+               WAITMS(50)
+               $pet = 3
+            ELSE
+               $exit_pet = $exit_pet + 1
+               $pet = 0
+            END_IF
+         CASE(4)
+            IF($search_pet = 1)
+               $check_pet = 1
+               LCLICK($_return1-110 + RND(-4,4), $_return2-95 + RND(-4,4))
+               WAITMS(50)
+               $pet_not_found = 1
+               $pet = 3
+            ELSE
+               $exit_pet = $exit_pet + 1
+               $pet = 0
+            END_IF
+         END_SWITCH
+         IF($exit_pet = 3)
+            $check_pet = 1
+         END_IF
+      END_CYC
+      $time_pet = $_time_t + 60
+   END_IF
+END_IF
+
+IF(($navigate = 0)&($minimap_not_found!1))
+   $navigate = 1
+   SWITCH($flight_modes)
+   CASE("PET")
+      $x = $_xmap-120 + $xcount
+      $y = $_ymap+28  + $ycount
+      INC($count,1)
+      IF(($count > 0)&($count < 10))
+         $xcount = $xcount + 10
+         IF($zig_zag = 0)
+            $zig_zag = 1
+            $ycount = $ycount + 25
+         ELSE
+            $zig_zag = 0
+            $ycount = $ycount - 25
+         END_IF
+      END_IF
+      IF(($count > 9)&($count < 16))
+         $ycount = $ycount + 9
+         IF($zig_zag = 0)
+            $zig_zag = 1
+            $xcount = $xcount + 25
+         ELSE
+            $zig_zag = 0
+            $xcount = $xcount - 25
+         END_IF
+      END_IF
+      IF(($count > 15)&($count < 26))
+         $xcount = $xcount - 10
+         IF($zig_zag = 0)
+            $zig_zag = 1
+            $ycount = $ycount - 25
+         ELSE
+            $zig_zag = 0
+            $ycount = $ycount + 25
+         END_IF
+      END_IF
+      IF(($count > 25)&($count < 32))
+         $ycount = $ycount - 9
+         IF($zig_zag = 0)
+            $zig_zag = 1
+            $xcount = $xcount - 25
+         ELSE
+            $zig_zag = 0
+            $xcount = $xcount + 25
+         END_IF
+      END_IF
+      IF($count = 32)
+         UNDEFINE($count)
+         UNDEFINE($xcount)
+         UNDEFINE($ycount)
+         UNDEFINE($zig_zag)
+      END_IF
+   CASE("AZGARD_SCREAM")
+      $x = $_xmap-120 + $xcount
+      $y = $_ymap+28  + $ycount
+      INC($count,1)
+      IF(($count > 0)&($count < 10))
+         $xcount = $xcount + 10
+         IF($zig_zag = 0)
+            $zig_zag = 1
+            $ycount = $ycount + 25
+         ELSE
+            $zig_zag = 0
+            $ycount = $ycount - 25
+         END_IF
+      END_IF
+      IF(($count > 9)&($count < 11))
+         $ycount = $ycount + 56
+      END_IF
+      IF(($count > 10)&($count < 21))
+         $xcount = $xcount - 10
+         IF($zig_zag = 0)
+            $zig_zag = 1
+            $ycount = $ycount - 25
+         ELSE
+            $zig_zag = 0
+            $ycount = $ycount + 25
+         END_IF
+      END_IF
+      IF(($count > 20)&($count < 22))
+         $ycount = $ycount - 56
+      END_IF
+      IF($count = 23)
+         UNDEFINE($count)
+         UNDEFINE($xcount)
+         UNDEFINE($ycount)
+         UNDEFINE($zig_zag)
+      END_IF
+   CASE("RADIATION")
+      INC($radiation_route,1)
+      SWITCH($radiation_route)
+      CASE(1)
+         $x = $_xmap - 135
+         $y = $_ymap + 30
+      CASE(2)
+         $x = $_xmap - 30
+         $y = $_ymap + 30
+      CASE(3)
+         $x = $_xmap - 30
+         $y = $_ymap + 130
+      CASE(4)
+         $x = $_xmap - 135
+         $y = $_ymap + 130
+         $radiation_route = 0
+      END_SWITCH
+   CASE("RANDOM")
+      $x = RND($_xmap-135,$_xmap-30)
+      $y = RND($_ymap+26,$_ymap+135)
+   END_SWITCH
+   LCLICK($x + RND(-4,4),$y + RND(-4,4))
+   WAITMS(500)
+ELSE
+   GETSCREEN($_xmap-91,$_ymap+6, $_xmap-59,$_ymap+16)
+   IF_PIXEL_IN($_xmap-90,$_ymap+5, $_xmap-60,$_ymap+15, 16777215)
+      WAITMS(5)
+   ELSE
+      $navigate = 0
+      $check_minimap = 0
+   END_IF
+   WAITMS(50)
+END_IF
+
+IF(($use_collecting = 1)&($minimap_not_found!1))
+   //$time_box = $_time_t
+   $stop_ship = 0
+   $check = 0
+   $check_out = 0
+   WHILE($check_out = 0)
+      GETSCREEN(0,200, $_xmax,$_ymax-120)
+      COLORMODE(3,200,0, $_xmax,$_ymax-120)
+      PXLREPLACE(INT($_xmax/2-30),INT($_ymax/2+20),INT($_xmax/2+30),INT($_ymax/2+110), -1, 0))
+      IF_PIXEL_IN(0,200, $_xmax,$_ymax-120, 8376319)
+         $xbox = 0
+         $ybox = 0
+         SCANPXL($arr,0,200, $_xmax,$_ymax-120, 8376319)
+         FOR($a=0,$a<ARRSIZE($arr),2)
+            IF(DIST($arr[$a],$arr[$a+1],INT($_xmax/2),INT($_ymax/2))<DIST($xbox,$ybox,INT($_xmax/2),INT($_ymax/2)))
+               $xbox=$arr[$a]
+               $ybox=$arr[$a+1]
+            END_IF
+         END_CYC
+         UNDEFINE($arr)
+         $check = 1
+         IF(($xbox=0)&($ybox=0))
+            WAITMS(10)
+         ELSE
+            IF($stop_ship = 0)
+               $stop_ship = 1
+               IF(($xbox > 0)&($xbox < $_xmax)&($ybox > 0)&($ybox < INT($_ymax/2+150)))
+                  LCLICK(INT($_xmax/2),INT($_ymax/2-110))
+               ELSE
+                  LCLICK(INT($_xmax/2),INT($_ymax/2+140))
+               END_IF
+            ELSE
+               LCLICK($xbox,$ybox)
+            END_IF
+         END_IF
+         IF($slowpoke = 1)
+            WAITMS(400)
+         ELSE
+            WAITMS(150)
+         END_IF
+         $time_collected = $_time_t + 3 
+         WHILE($time_collected > $_time_t)
+            GETSCREEN($_xmap-91,$_ymap+6, $_xmap-59,$_ymap+16)
+            IF_PIXEL_IN($_xmap-90,$_ymap+5, $_xmap-60,$_ymap+15, 16777215)
+               WAITMS(5)
+            ELSE
+               $time_collected = 0
+               IF($end_of_animation = 0)
+                  $end_of_animation = 1
+                  WAITMS(5)
+               ELSE
+                  $end_of_animation = 0
+                  WAITMS(250) 
+               END_IF
+            END_IF
+         END_CYC
+      ELSE
+         IF($check = 1)
+            $check = 0
+            $end_of_animation = 0
+            LCLICK($x + RND(-4,4),$y + RND(-4,4))
+            WAITMS(700)
+         END_IF
+         $check_out = 1
+      END_IF
+   END_CYC
+END_IF
